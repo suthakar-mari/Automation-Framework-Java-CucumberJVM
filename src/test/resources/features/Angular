@@ -1,0 +1,16 @@
+@regression @Angular
+Feature: Displaying NGWebDriver for Angular
+  As someone who doesn't want to write javascript all day
+  I want to be able to test angular with selenium
+  So that I don't have to reskill in js
+
+  Background:
+    Puppy adoption scenarios
+    Given The order "Order A" exists
+    And I am on the homepage
+
+	@SeverityLevel.CRITICAL @TestCaseId("abc-007") @Issue("geo-999")
+  Scenario: User adopts a puppy  
+  	This is a scenario description in the report
+    When I adopt a puppy providing "Order A"
+    Then I should see the successful adoption message

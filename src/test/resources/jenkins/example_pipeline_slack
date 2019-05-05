@@ -1,0 +1,49 @@
+#NOTE: Install the slack plugin on jenkins and configure the app on slack & hook/token in jenkins under configure "tools".
+
+node {
+   def mvnHome
+   try {
+   stage('FETCH SRC') {
+     git 'https://github.com/symonk/java-selenium-parallel-framework.git'
+   }
+   stage('Execution') {
+     bat '"C:\\Program Files (x86)\\Jenkins/workspace\\GUI Automated Tests\\regression_chrome.bat"'
+   }
+   stage('REPORT') {
+     allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
+    }
+   stage('LOGGING') {
+    archiveArtifacts '/target/test_logs/*.html'
+   }
+   }catch (e) {
+    currentBuild.result = "FAILED"
+    throw e
+  } finally {
+
+    notifyBuild(currentBuild.result)
+  }
+}
+
+ def notifyBuild(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
+
+  // Default values
+  def colorName = 'YELLOW'
+  def colorCode = '#FFFF00'
+  def subject = "Test Auto: *${Tests_for_execution}* was *${buildStatus}*"
+  def summary = "${subject}: Report:[${env.BUILD_URL}allure]"
+ 
+
+  // Override default values based on build status
+if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary)
+ }
